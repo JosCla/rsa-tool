@@ -55,6 +55,12 @@ string RSA::genKeyFrom() {
 			_p = (_totN / (_q - 1)) + 1;
 		} else if (_totN != 0 && _p != 0) {
 			_q = (_totN / (_p - 1)) + 1;
+		} else if (_n != 0 && _totN != 0) {
+			mpz_class pPlusQ = _n - _totN + 1;
+			mpz_class middle = pPlusQ / 2;
+			mpz_class diff = sqrt((pPlusQ * pPlusQ) - (4 * _n)) / 2;
+			_p = middle - diff;
+			_q = middle + diff;
 		}
 	}
 	if (_p == 0) {
