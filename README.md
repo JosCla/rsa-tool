@@ -1,5 +1,5 @@
 # rsa-tool
-Command line RSA tool written in C++, with use of the GMP library.
+Command line RSA tool written in C++, with use of the GMP library. Do not *ever* use this tool to transmit sensitive information. This tool is made to be a demonstration of RSA, but may not be entirely secure in practice.
 
 ## Usage
 1. Install the GNU MP Bignum Library.
