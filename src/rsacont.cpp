@@ -114,9 +114,13 @@ int RSAContainer::evaluate() {
 		case 0:
 			// Generate key
 			{
-			string randGen = _rsa.genKeyFrom();
-			cout << "Generated randomly: " << randGen << endl;
-			doOutput();
+				string randGen = _rsa.genKeyFrom();
+				if (randGen.empty()) {
+					cout << "Generated randomly: (none)" << endl;
+				} else {
+					cout << "Generated randomly: " << randGen << endl;
+				}
+				doOutput();
 			}
 			break;
 		
@@ -124,8 +128,7 @@ int RSAContainer::evaluate() {
 			// Encrypt
 			if (_rsa.encrypt()) {
 				if (_outVec.empty()) {
-					OutputType defaultOut = {"", "c"};
-					addToOutVec(defaultOut);
+					addToOutVec(OutputType({"", "c"}));
 				}
 				doOutput();
 			} else {
@@ -137,8 +140,7 @@ int RSAContainer::evaluate() {
 			// Decrypt
 			if (_rsa.decrypt()) {
 				if (_outVec.empty()) {
-					OutputType defaultOut = {"", "m"};
-					addToOutVec(defaultOut);
+					addToOutVec(OutputType({"", "m"}));
 				}
 				doOutput();
 			} else {

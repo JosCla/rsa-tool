@@ -1,8 +1,6 @@
 // C++ Standard Library
 #include <iostream>
 using std::cout; using std::cerr; using std::endl;
-#include <fstream>
-using std::ofstream;
 #include <string>
 using std::string;
 #include <vector>
@@ -16,8 +14,6 @@ using std::rand; using std::srand;
 #include <gmpxx.h>
 
 // Our files
-#include "rsafuncs.h"
-#include "rsaobj.h"
 #include "rsacont.h"
 
 int main(int argc, char *argv[]) {
