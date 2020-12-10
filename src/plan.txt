@@ -1,0 +1,32 @@
+usage flags
+-------------------
+
+mode selection (note: these three are mutually exclusive, and at least one must always be used):
+-g: generate key
+	makes the program generate a key from scratch (or you can input features that it will use to try to regenerate a key)
+-e: encrypt
+	allows the user to encrypt a thing
+	note: if no output options are specified, -oc is effectively added by default
+-d: decrypt
+	allows the user to decrypt a thing
+	note: if no output options are specified, -om is effectively added by default
+
+input output specifiers:
+-i=FILENAME: input properties from FILENAME
+	inputs the properties from a certain file to be used in encryption/decryption
+	can input from multiple files
+-i*=...: input a certain property manually
+	lets the user input a certain property manually, replacing the * with the proper qualifier, as shown below
+	-ie sets the public key, -id sets the private key
+	-ip and -iq set large primes used to generate key, -in sets n, -it sets totN
+	-im sets message, -ic sets ciphertext, -is sets the message in string form (converting from ASCII to decimal before use)
+	ex. -ie=65537 sets the public key to 65537
+-o*: output certain properties
+	lets the user choose to only output certain features, replacing the * with the proper qualifier(s)
+	this command uses the same qualifiers as the flag above (-i*). you can also chain together multiple qualifiers to output
+	ex. -oen outputs the public key and the modulus
+	ex. -opqnted outputs all key properties
+-o*=FILENAME: output certain properties to FILENAME
+	directs certain output to a certain file. this flag can be used multiple times to output different things to different files
+	ex. -oen=pub.key -odn=priv.key outputs the public exponent and modulus to pub.key, and outputs the private exponent and modulus to priv.key
+	ex. -opqnted=cool.key outputs all key properties to cool.key
