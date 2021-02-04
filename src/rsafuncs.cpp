@@ -6,6 +6,8 @@
 using std::cout; using std::endl;
 #include <string>
 using std::string; using std::to_string;
+#include <vector>
+using std::vector;
 #include <cstdlib>
 using std::rand;
 
@@ -140,4 +142,39 @@ string numToString(mpz_class num) {
 
 	// Returning our final value
 	return retStr;
+}
+
+// Finds a continued fraction given a numerator and denominator
+void continuedFrac(const mpz_class &num, const mpz_class &den, vector<mpz_class> &res) {
+	// Finding the current entry and the next numerator/denominator
+	mpz_class rem = num % den;
+	mpz_class intPart = (num - rem) / den;
+
+	res.push_back(intPart);
+
+	// If our remainder is not zero, we must continue reducing
+	if (rem != mpz_class(0)) {
+		continuedFrac(den, rem, res);
+	}
+}
+
+// Finds a convergent through a given index
+void getConvergent(const vector<mpz_class> &contFrac, const unsigned int ind, mpz_class &num, mpz_class &den) {
+	// Starting with 0 / 1 for our convergent until we add terms
+	num = 0;
+	den = 1;
+
+	// Going from the last term to the first
+	// (collapsing the inner fractions before the outer ones)
+	for (int currInd = ind; currInd >= 0; --currInd) {
+		// Adding the current index
+		num += contFrac.at(currInd) * den;
+
+		// Then flipping the numerator and denominator if we need to move up a layer
+		if (currInd > 0) {
+			mpz_class swap = num;
+			num = den;
+			den = swap;
+		}
+	}
 }

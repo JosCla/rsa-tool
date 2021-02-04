@@ -15,7 +15,11 @@ public:
 	RSA();
 
 	void genKey(const unsigned int pqLen = 200, const unsigned int eLen = 5);
+
 	std::string genKeyFrom();
+	void basicRegen();
+	bool wienersAttack();
+
 	void setProp(char prop, const mpz_class &val);
 	void setProp(char prop, const std::string &str);
 	void printProps(const std::string &props, std::ostream &out = std::cout) const;

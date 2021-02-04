@@ -6,6 +6,8 @@
 using std::cout; using std::endl; using std::ostream;
 #include <string>
 using std::string;
+#include <vector>
+using std::vector;
 
 // Libraries
 #include <gmpxx.h>
@@ -45,6 +47,46 @@ string RSA::genKeyFrom() {
 	// String of each property that had to be generated randomly
 	string randGen = "";
 
+	// Performing any needed basic regeneration.
+	basicRegen();
+
+	// Trying common attacks
+	if (_e != 0 && _n != 0 && (_p == 0 || _q == 0 || _totN == 0 || _d == 0)) {
+		wienersAttack();
+	}
+
+	// Randomly regenerating any remaining properties.
+	if (_p == 0) {
+		_p = genPrime(200);
+		randGen += 'p';
+	}
+	if (_q == 0) {
+		_q = genPrime(200);
+		randGen += 'q';
+	}
+	if (_n == 0) {
+		_n = _p * _q;
+		randGen += 'n';
+	}
+	if (_totN == 0) {
+		_totN = (_p - 1) * (_q - 1);
+		randGen += 't';
+	}
+	if (_e == 0) {
+		_e = genPrime(5);
+		randGen += 'e';
+	}
+	if (_d == 0) {
+		_d = modMultInv(_e, _totN);
+		while (_d < 0) {_d += _totN;}
+		randGen += 'd';
+	}
+
+	return randGen;
+}
+
+// Performs basic regeneration on the key components in RSA.
+void RSA::basicRegen() {
 	// Regenerating large primes
 	if (_p == 0 || _q == 0) {
 		if (_n != 0 && _q != 0) {
@@ -57,59 +99,96 @@ string RSA::genKeyFrom() {
 			_q = (_totN / (_p - 1)) + 1;
 		} else if (_n != 0 && _totN != 0) {
 			mpz_class pPlusQ = _n - _totN + 1;
-			mpz_class middle = pPlusQ / 2;
-			mpz_class diff = sqrt((pPlusQ * pPlusQ) - (4 * _n)) / 2;
-			_p = middle - diff;
-			_q = middle + diff;
+			mpz_class discrim = (pPlusQ * pPlusQ) - (4 * _n);
+			if (discrim > 0) {
+				mpz_class middle = pPlusQ / 2;
+				mpz_class diff = sqrt(discrim) / 2;
+				_p = middle - diff;
+				_q = middle + diff;
+			}
 		}
-	}
-	if (_p == 0) {
-		_p = genPrime(200);
-		randGen += 'p';
-	}
-	if (_q == 0) {
-		_q = genPrime(200);
-		randGen += 'q';
 	}
 
 	// Regenerating n and totN
 	if (_n == 0) {
-		_n = _p * _q;
-		if (randGen.size() > 0) { // if p or q were generated
-			randGen += 'n';
+		if (_p != 0 && _q != 0) {
+			_n = _p * _q;
 		}
 	}
 	if (_totN == 0) {
-		_totN = (_p - 1) * (_q - 1);
-		if (randGen.size() > 0) { // if p or q were generated
-			randGen += 't';
+		if (_p != 0 && _q != 0) {
+			_totN = (_p - 1) * (_q - 1);
 		}
 	}
 
 	// Regenerating e
 	if (_e == 0) {
-		if (_d != 0) {
+		if (_d != 0 && _totN != 0) {
 			_e = modMultInv(_d, _totN);
 			while (_e < 0) {_e += _totN;}
-			if (randGen.find('t') < randGen.length()) {
-				randGen += 'e';
-			}
-		} else {
-			_e = genPrime(5);
-			randGen += 'e';
 		}
 	}
 
 	// Regenerating d (same process as e)
 	if (_d == 0) {
-		_d = modMultInv(_e, _totN);
-		while (_d < 0) {_d += _totN;}
-		if (randGen.find('t') < randGen.length() || randGen.find('e') < randGen.length()) {
-			randGen += 'd';
+		if (_e != 0 && _totN != 0) {
+			_d = modMultInv(_e, _totN);
+			while (_d < 0) {_d += _totN;}
+		}
+	}
+}
+
+// Wiener's Attack
+// Guide: https://sagi.io/crypto-classics-wieners-rsa-attack/
+// Works when private exponent d is smaller than about n^(1/4}
+// Potentially recovers all key components from e and n
+// Returns true if it succeeded, false if it failed
+bool RSA::wienersAttack() {
+	bool success = false;
+
+	// Generating the continued fraction of e / n
+	vector<mpz_class> enFrac;
+	continuedFrac(_e, _n, enFrac);
+
+	// Iterating through the convergents
+	for (unsigned int ind = 0; ind < enFrac.size(); ++ind) {
+		// Getting current convergent and putting it into K and D guesses
+		mpz_class currK, currD;
+		getConvergent(enFrac, ind, currK, currD);
+		if (currK == 0) {continue;}
+
+		// Getting totN from the current K and D
+		mpz_class currTotN = (_e * currD - 1) / currK;
+
+		// Getting p and q from this totN and the given n
+		mpz_class currP(0), currQ(0);
+		mpz_class pPlusQ = _n - currTotN + 1;
+		mpz_class discrim = (pPlusQ * pPlusQ) - (4 * _n);
+		if (discrim > 0) {
+			mpz_class middle = pPlusQ / 2;
+			mpz_class diff = sqrt(discrim) / 2;
+			currP = middle - diff;
+			currQ = middle + diff;
+		}
+
+		// If p * q = n, we've found a match!
+		if (currP * currQ == _n) {
+			_p = currP;
+			_q = currQ;
+			_totN = currTotN;
+			_d = currD;
+			
+			success = true;
+			break;
+		}
+
+		// Also, if d gets too large, exit
+		if ((currD * currD * currD * currD) > _n) {
+			break;
 		}
 	}
 
-	return randGen;
+	return success;
 }
 
 // Sets a given property
