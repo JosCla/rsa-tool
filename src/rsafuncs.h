@@ -10,9 +10,6 @@
 // Libraries
 #include <gmpxx.h>
 
-// Our Files
-#include "rsaobj.h"
-
 void genKey(mpz_class &e, mpz_class &d, mpz_class &n, const unsigned int pqLen = 200, const unsigned int eLen = 5);
 mpz_class genPrime(const unsigned int numDigits);
 mpz_class modMultInv(const mpz_class &num, const mpz_class &modulus);
