@@ -43,7 +43,7 @@ void RSA::genKey(const unsigned int pqLen, const unsigned int eLen) {
 
 // Generates a key from existing properties
 // Returns a string of each property that had to be generated randomly
-string RSA::genKeyFrom() {
+string RSA::genKeyFrom(const unsigned int pqLen, const unsigned int eLen) {
 	// String of each property that had to be generated randomly
 	string randGen = "";
 
@@ -52,16 +52,18 @@ string RSA::genKeyFrom() {
 
 	// Trying common attacks
 	if (_e != 0 && _n != 0 && (_p == 0 || _q == 0 || _totN == 0 || _d == 0)) {
-		wienersAttack();
+		bool success = wienersAttack();
+		cout << "Trying Wiener's Attack: ";
+		cout << (success ? "(Success!)" : "(Failed...)") << endl;
 	}
 
 	// Randomly regenerating any remaining properties.
 	if (_p == 0) {
-		_p = genPrime(200);
+		_p = genPrime(pqLen);
 		randGen += 'p';
 	}
 	if (_q == 0) {
-		_q = genPrime(200);
+		_q = genPrime(pqLen);
 		randGen += 'q';
 	}
 	if (_n == 0) {
@@ -73,7 +75,7 @@ string RSA::genKeyFrom() {
 		randGen += 't';
 	}
 	if (_e == 0) {
-		_e = genPrime(5);
+		_e = genPrime(eLen);
 		randGen += 'e';
 	}
 	if (_d == 0) {

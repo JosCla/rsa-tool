@@ -38,6 +38,8 @@ private:
 
 	int _mode;
 	std::vector<OutputType> _outVec;
+
+	unsigned int _pqLen, _eLen;
 };
 
 #endif // RSACONT_H

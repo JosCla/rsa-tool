@@ -16,7 +16,7 @@ public:
 
 	void genKey(const unsigned int pqLen = 200, const unsigned int eLen = 5);
 
-	std::string genKeyFrom();
+	std::string genKeyFrom(const unsigned int pqLen = 200, const unsigned int eLen = 5);
 	void basicRegen();
 	bool wienersAttack();
 

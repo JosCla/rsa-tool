@@ -7,7 +7,7 @@ using std::cout; using std::endl;
 #include <fstream>
 using std::ifstream; using std::ofstream;
 #include <string>
-using std::string;
+using std::string; using std::stoul;
 #include <vector>
 using std::vector;
 
@@ -20,6 +20,8 @@ using std::vector;
 
 RSAContainer::RSAContainer(const RSA &rsa) : _rsa(rsa) {
 	_mode = -1;
+	_pqLen = 200;
+	_eLen = 5;
 }
 
 void RSAContainer::parseArgs(const vector<string> &args) {
@@ -58,6 +60,7 @@ void RSAContainer::parseArgs(const vector<string> &args) {
 				break;
 
 			case 'o':
+				{
 				// Output
 				int equalsInd = arg.find('=');
 
@@ -73,6 +76,30 @@ void RSAContainer::parseArgs(const vector<string> &args) {
 
 				addToOutVec(out);
 				break;
+				}
+
+			case '-':
+				{
+				// Other properties
+				string prop;
+				int val = 0;
+
+				int equalsInd = arg.find('=');
+				if (equalsInd != -1) {
+					prop = arg.substr(2, equalsInd - 2);
+					val = stoul(arg.substr(equalsInd + 1));
+				} else {
+					prop = arg.substr(2);
+				}
+
+				if (prop == "e-len" && equalsInd != -1) {
+					_eLen = val;
+				} else if (prop == "pq-len" && equalsInd != -1) {
+					_pqLen = val;
+				}
+
+				break;
+				}
 		}
 	}
 }
@@ -114,7 +141,7 @@ int RSAContainer::evaluate() {
 		case 0:
 			// Generate key
 			{
-				string randGen = _rsa.genKeyFrom();
+				string randGen = _rsa.genKeyFrom(_pqLen, _eLen);
 				if (randGen.empty()) {
 					cout << "Generated randomly: (none)" << endl;
 				} else {
