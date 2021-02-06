@@ -67,8 +67,8 @@ Note: These flags can be added multiple times in a single command, in order to i
 
 ### Other Usage Flags
 - --e-len=...: Change generated e-length
-  - Lets the user change the length of randomly generated public exponent e.
+  - Lets the user change the length of randomly generated public exponent e (default length 5).
     - ex. --e-len=50 makes randomly generated public exponents 50 digits long (in base-10)
 - --pq-len=...: Change generated pq-length
-  - Lets the user change the length of randomly generated large primes p and q.
+  - Lets the user change the length of randomly generated large primes p and q (default length 200).
     - ex. --pq-len=500 makes randomly generated large primes 500 digits long (in base-10)
