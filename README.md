@@ -64,3 +64,11 @@ Note: These flags can be added multiple times in a single command, in order to i
 - m: message
 - c: ciphertext
 - s: message input/output in string form (converts to/from decimal to ASCII before inputting/outputting)
+
+### Other Usage Flags
+- --e-len=...: Change generated e-length
+  - Lets the user change the length of randomly generated public exponent e.
+    - ex. --e-len=50 makes randomly generated public exponents 50 digits long (in base-10)
+- --pq-len=...: Change generated pq-length
+  - Lets the user change the length of randomly generated large primes p and q.
+    - ex. --pq-len=500 makes randomly generated large primes 500 digits long (in base-10)
